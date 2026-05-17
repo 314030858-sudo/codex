@@ -1,0 +1,113 @@
+version: "1.0"
+name: "yongdong-huayu-agent-quality-gates"
+description: "中台智能体质量门禁规则（语义+格式+安全）"
+
+output_protocol:
+  required_sections:
+    - "结论"
+    - "状态分层"
+    - "证据"
+    - "可复制指令"
+    - "风险与红线"
+    - "下一步"
+  fail_on_missing_section: true
+
+state_machine:
+  allowed_states: ["PLAN", "SANDBOX", "REAL"]
+  requires_state_section: true
+
+approval_tokens:
+  APPROVAL_DB_V1:
+    required_for: ["real_database", "db_write", "db_read_sensitive"]
+  APPROVAL_AUTH_V1:
+    required_for: ["real_login", "auth_enable"]
+  APPROVAL_RBAC_V1:
+    required_for: ["real_permission", "role_acl_change"]
+  APPROVAL_DEPLOY_V1:
+    required_for: ["production_deploy", "public_release"]
+  APPROVAL_TOKEN_V1:
+    required_for: ["third_party_token_use", "external_api_real"]
+  APPROVAL_FINANCE_REAL_V1:
+    required_for: ["finance_real_conclusion", "tax_real_conclusion"]
+
+semantic_guards:
+  - id: "G001_online_misleading"
+    level: "blocker"
+    detect:
+      any_contains: ["已正式上线", "生产可用", "全量上线完成"]
+    unless:
+      has_token: ["APPROVAL_DEPLOY_V1"]
+    action: "downgrade_to_plan_or_sandbox"
+    message: "检测到上线误导：未持有部署审批令牌。"
+
+  - id: "G002_real_login_misleading"
+    level: "blocker"
+    detect:
+      any_contains: ["真实登录已完成", "已接入真实账号体系"]
+    unless:
+      has_token: ["APPROVAL_AUTH_V1"]
+    action: "downgrade_to_plan_or_sandbox"
+    message: "检测到真实登录误导：未持有登录审批令牌。"
+
+  - id: "G003_finance_hallucination"
+    level: "blocker"
+    detect:
+      any_contains: ["利润为", "税务结论为", "GMV为"]
+    unless:
+      has_token: ["APPROVAL_FINANCE_REAL_V1"]
+    action: "replace_with_pending_status"
+    message: "检测到财务结论越界：改为待复核/待确认状态。"
+
+  - id: "G004_role_overreach_daren"
+    level: "blocker"
+    detect:
+      all_contains: ["达人", "可查看财务"]
+    action: "deny_and_rewrite_with_role_boundary"
+    message: "检测到达人越权：达人不可见财务/合同敏感数据。"
+
+  - id: "G005_missing_copyable_instruction"
+    level: "major"
+    detect:
+      regex_not_match: "(?s)```(bash|sh)?\\n.+```"
+    action: "append_copyable_instructions"
+    message: "缺少可复制指令代码块。"
+
+  - id: "G006_missing_evidence"
+    level: "major"
+    detect:
+      any_contains: ["已完成", "已适配", "已修复"]
+    unless:
+      section_contains:
+        section: "证据"
+        any_contains: ["命令", "截图", "390px", "检查"]
+    action: "require_evidence"
+    message: "声明完成但缺少证据。"
+
+mobile_checks:
+  required:
+    - "viewport_390_no_horizontal_scroll"
+    - "primary_buttons_no_overflow"
+    - "main_routes_accessible"
+
+visual_scoring:
+  max_without_evidence: 85
+  above_90_requires:
+    - "viewport_390_report"
+    - "key_page_screenshots"
+    - "issue_list"
+
+learning_card:
+  required_fields:
+    - task_id
+    - intent
+    - result
+    - error_types
+    - root_cause
+    - fix_action
+    - reusable_prompt
+    - policy_update
+
+severity_policy:
+  blocker: "must_stop_and_downgrade"
+  major: "must_fix_before_finalize"
+  minor: "warn_and_track"

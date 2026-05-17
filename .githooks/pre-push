@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-push] Running full onebox governance check..."
+./scripts/onebox_agent_governance.sh

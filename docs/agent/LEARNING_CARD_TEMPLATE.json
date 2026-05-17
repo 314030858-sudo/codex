@@ -1,0 +1,69 @@
+{
+  "version": "1.0",
+  "card_type": "learning_card",
+  "task_id": "TASK-YYYYMMDD-001",
+  "timestamp": "2026-05-17T00:00:00Z",
+  "agent": {
+    "name": "builder-agent",
+    "role": "execution"
+  },
+  "state": {
+    "declared": "PLAN",
+    "allowed_values": ["PLAN", "SANDBOX", "REAL"]
+  },
+  "intent": {
+    "user_goal": "一句话描述用户目标",
+    "business_context": "所属业务场景"
+  },
+  "result": {
+    "status": "success",
+    "summary": "一句话描述结果",
+    "deliverables": [
+      "文件A",
+      "页面B",
+      "脚本C"
+    ]
+  },
+  "quality_evidence": {
+    "commands": [
+      {
+        "cmd": "node --check app.js",
+        "status": "pass",
+        "output_summary": "语法检查通过"
+      }
+    ],
+    "mobile": {
+      "viewport": "390px",
+      "horizontal_scroll": false,
+      "button_overflow_count": 0
+    },
+    "screenshots": [
+      {
+        "page": "/dashboard",
+        "path": "artifacts/screenshots/dashboard-390.png"
+      }
+    ]
+  },
+  "errors": {
+    "error_types": [
+      "bad_format"
+    ],
+    "root_cause": "未按固定协议输出，缺少可复制指令",
+    "impact": "用户无法一键执行，返工1次"
+  },
+  "fix_action": {
+    "immediate": "补充可复制指令代码块",
+    "preventive": "门禁新增 G005（缺少可复制指令拦截）"
+  },
+  "reusable_prompt": "按固定协议输出：结论、状态分层、证据、可复制指令、风险与红线、下一步。",
+  "policy_update": {
+    "should_update": true,
+    "target": "QUALITY_GATES.yaml",
+    "change_note": "新增缺失可复制指令检测规则"
+  },
+  "review": {
+    "reviewer": "pm-agent",
+    "review_status": "approved",
+    "comments": "可纳入案例库"
+  }
+}

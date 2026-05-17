@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# 只要提交中涉及 agent 治理相关文件，就自动执行检查
+if git diff --cached --name-only | grep -E '^(docs/agent/|scripts/(onebox_agent_governance|validate_agent_assets|run_regression_checks)\.py|ci/check_agent_governance\.sh)' >/dev/null; then
+  echo "[pre-commit] Running agent governance checks..."
+  ./ci/check_agent_governance.sh
+fi
