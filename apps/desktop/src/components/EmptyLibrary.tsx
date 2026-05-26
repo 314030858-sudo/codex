@@ -15,14 +15,21 @@ const features = [
   }
 ];
 
-export function EmptyLibrary() {
+type EmptyLibraryProps = {
+  isImporting: boolean;
+  onImportFolder: () => void;
+};
+
+export function EmptyLibrary(props: EmptyLibraryProps) {
   return (
     <section className="content-area">
       <div className="hero-card">
-        <div className="hero-badge">Phase 2 · Desktop Shell</div>
+        <div className="hero-badge">Phase 3 · Local Media Import</div>
         <h2>还没有导入照片或视频</h2>
         <p>选择一个本地文件夹，影核 AI 将在本机建立你的私人影像库。</p>
-        <button className="primary-button large" type="button">导入本地文件夹</button>
+        <button className="primary-button large" type="button" onClick={props.onImportFolder}>
+          {props.isImporting ? '正在扫描...' : '导入本地文件夹'}
+        </button>
       </div>
 
       <div className="feature-grid">
