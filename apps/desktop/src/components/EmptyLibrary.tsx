@@ -16,6 +16,7 @@ const features = [
 ];
 
 type EmptyLibraryProps = {
+  errorText: string | null;
   isImporting: boolean;
   onImportFolder: () => void;
 };
@@ -31,6 +32,8 @@ export function EmptyLibrary(props: EmptyLibraryProps) {
           {props.isImporting ? '正在扫描...' : '导入本地文件夹'}
         </button>
       </div>
+
+      {props.errorText && <div className="inline-error">{props.errorText}</div>}
 
       <div className="feature-grid">
         {features.map((feature) => (
