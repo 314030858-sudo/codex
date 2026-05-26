@@ -92,7 +92,7 @@ export default function App() {
         />
 
         {overview.total_media_count === 0 ? (
-          <EmptyLibrary isImporting={isImporting} onImportFolder={handleImportFolder} />
+          <EmptyLibrary errorText={errorText} isImporting={isImporting} onImportFolder={handleImportFolder} />
         ) : (
           <MediaGrid
             assets={filteredAssets}
@@ -103,8 +103,6 @@ export default function App() {
             errorText={errorText}
           />
         )}
-
-        {errorText && <div className="inline-error">{errorText}</div>}
 
         <StatusBar
           statusText={statusText}
