@@ -1,0 +1,129 @@
+.inline-error {
+  margin: -30px 36px 12px;
+  padding: 12px 16px;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 14px;
+  color: #fecaca;
+  background: rgba(127, 29, 29, 0.24);
+  font-size: 13px;
+}
+
+.media-library {
+  padding: 32px 36px;
+  overflow: auto;
+}
+
+.library-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.library-header h2 {
+  margin: 0;
+  font-size: 38px;
+}
+
+.library-header p {
+  margin: 10px 0 0;
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+.library-stat-stack {
+  min-width: 140px;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.62);
+  text-align: right;
+}
+
+.library-stat-stack span {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.library-stat-stack strong {
+  display: block;
+  margin-top: 4px;
+  color: #f8fafc;
+  font-size: 32px;
+}
+
+.library-warning,
+.empty-result-card {
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid rgba(251, 191, 36, 0.22);
+  border-radius: 18px;
+  color: #fde68a;
+  background: rgba(113, 63, 18, 0.18);
+}
+
+.empty-result-card h3 {
+  margin: 0 0 8px;
+}
+
+.empty-result-card p {
+  margin: 0;
+  color: #fcd34d;
+  line-height: 1.7;
+}
+
+.asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.asset-card {
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.62);
+}
+
+.asset-thumb {
+  display: grid;
+  height: 140px;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.32), rgba(14, 165, 233, 0.16));
+  color: #bae6fd;
+  font-size: 38px;
+}
+
+.asset-thumb.video {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.34), rgba(236, 72, 153, 0.16));
+  color: #fbcfe8;
+}
+
+.asset-info {
+  padding: 14px;
+}
+
+.asset-info h3 {
+  overflow: hidden;
+  margin: 0 0 8px;
+  color: #f8fafc;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asset-info p {
+  overflow: hidden;
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
