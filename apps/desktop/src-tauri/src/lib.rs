@@ -517,6 +517,20 @@ mod tests {
     }
 
     #[test]
+    fn imports_required_photo_video_and_raw_formats() {
+        for extension in [
+            "jpg", "jpeg", "png", "webp", "gif", "bmp", "heic", "dng", "arw", "cr2", "cr3", "nef",
+            "mp4", "mov", "webm",
+        ] {
+            let file_name = format!("sample.{extension}");
+            assert!(
+                media_type_for_path(Path::new(&file_name)).is_some(),
+                "{extension} should be importable"
+            );
+        }
+    }
+
+    #[test]
     fn migrates_existing_stage_three_database() {
         let conn = Connection::open_in_memory().expect("open in-memory database");
         conn.execute_batch(
