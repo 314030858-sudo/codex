@@ -20,7 +20,12 @@ export function TopBar(props: TopBarProps) {
 
       <div className="top-actions">
         <div className="ai-status">AI 分析：未开始</div>
-        <button className="primary-button" type="button" onClick={props.onImportFolder}>
+        <button
+          className="primary-button"
+          type="button"
+          onClick={props.onImportFolder}
+          disabled={props.isImporting}
+        >
           {props.isImporting ? '正在导入...' : '导入文件夹'}
         </button>
       </div>

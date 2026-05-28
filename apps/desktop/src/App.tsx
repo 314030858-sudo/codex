@@ -29,6 +29,7 @@ export default function App() {
   const [overview, setOverview] = useState<LibraryOverview>(emptyOverview);
   const [statusText, setStatusText] = useState('准备就绪');
   const [errorText, setErrorText] = useState<string | null>(null);
+  const [noticeText, setNoticeText] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -50,10 +51,9 @@ export default function App() {
     if (isImporting) {
       return;
     }
-
     setErrorText(null);
+    setNoticeText(null);
     setStatusText('请选择要导入的本地照片文件夹');
-
     let selected: string | string[] | null;
     try {
       selected = await open({
@@ -62,13 +62,19 @@ export default function App() {
         title: '选择要导入的照片或视频文件夹'
       });
     } catch (error) {
-      setErrorText(`打开文件夹选择器失败：${friendlyError(error)}`);
-      setStatusText('打开文件夹选择器失败');
+      setErrorText(`打开系统文件夹选择器失败：${friendlyError(error)}`);
+      setStatusText('文件夹选择失败');
       return;
     }
 
-    if (!selected || Array.isArray(selected)) {
+    if (!selected) {
       setStatusText('已取消导入');
+      return;
+    }
+
+    if (Array.isArray(selected)) {
+      setErrorText('文件夹选择器返回了多个路径，请重新选择一个文件夹。');
+      setStatusText('文件夹选择失败');
       return;
     }
 
@@ -81,7 +87,9 @@ export default function App() {
       });
       const nextOverview = await invoke<LibraryOverview>('get_library_overview');
       setOverview(nextOverview);
-      setStatusText(`导入完成：新增 ${summary.imported_count} 个，跳过 ${summary.skipped_count} 个`);
+      const importMessage = `导入完成：新增 ${summary.imported_count} 个，跳过 ${summary.skipped_count} 个，当前总数 ${summary.total_media_count} 个。`;
+      setNoticeText(importMessage);
+      setStatusText(importMessage);
     } catch (error) {
       setErrorText(`导入失败：${friendlyError(error)}`);
       setStatusText('导入失败');
@@ -128,7 +136,12 @@ export default function App() {
         />
 
         {overview.total_media_count === 0 ? (
-          <EmptyLibrary errorText={errorText} isImporting={isImporting} onImportFolder={handleImportFolder} />
+          <EmptyLibrary
+            errorText={errorText}
+            noticeText={noticeText}
+            isImporting={isImporting}
+            onImportFolder={handleImportFolder}
+          />
         ) : (
           <MediaGrid
             assets={filteredAssets}
@@ -137,6 +150,7 @@ export default function App() {
             videoCount={overview.video_count}
             searchQuery={searchQuery}
             errorText={errorText}
+            noticeText={noticeText}
           />
         )}
 

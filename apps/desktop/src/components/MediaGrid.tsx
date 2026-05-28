@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react';
+import { convertFileSrc } from '@tauri-apps/api/core';
 import type { MediaAsset } from '../types';
 
 type MediaGridProps = {
@@ -7,7 +9,11 @@ type MediaGridProps = {
   videoCount: number;
   searchQuery: string;
   errorText: string | null;
+  noticeText: string | null;
 };
+
+const previewablePhotoExtensions = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp']);
+const rawPhotoExtensions = new Set(['dng', 'arw', 'cr2', 'cr3', 'nef', 'orf', 'rw2', 'raf', 'pef']);
 
 function formatFileSize(value: number) {
   if (value < 1024) {
@@ -44,6 +50,53 @@ function cameraLabel(asset: MediaAsset) {
   return [asset.camera_make, asset.camera_model].filter(Boolean).join(' ');
 }
 
+function canPreviewAsset(asset: MediaAsset) {
+  return asset.media_type === 'photo' && previewablePhotoExtensions.has(asset.extension.toLowerCase());
+}
+
+function unsupportedPreviewText(asset: MediaAsset) {
+  const extension = asset.extension.toLowerCase();
+
+  if (asset.media_type === 'video') {
+    return '视频已导入，暂不支持预览';
+  }
+
+  if (extension === 'heic' || extension === 'heif') {
+    return 'HEIC 已导入，暂不支持预览';
+  }
+
+  if (rawPhotoExtensions.has(extension)) {
+    return 'RAW 已导入，暂不支持预览';
+  }
+
+  return `${asset.extension.toUpperCase()} 已导入，暂不支持预览`;
+}
+
+function MediaPreview({ asset }: { asset: MediaAsset }) {
+  const [previewFailed, setPreviewFailed] = useState(false);
+  const previewUrl = useMemo(() => {
+    if (!canPreviewAsset(asset)) {
+      return null;
+    }
+
+    return convertFileSrc(asset.file_path);
+  }, [asset.file_path, asset.extension, asset.media_type]);
+
+  if (previewUrl && !previewFailed) {
+    return (
+      <div className="asset-thumb has-image">
+        <img src={previewUrl} alt={asset.file_name} loading="lazy" onError={() => setPreviewFailed(true)} />
+      </div>
+    );
+  }
+
+  return (
+    <div className={asset.media_type === 'video' ? 'asset-thumb video unsupported' : 'asset-thumb unsupported'}>
+      <span>{previewFailed ? '预览加载失败' : unsupportedPreviewText(asset)}</span>
+    </div>
+  );
+}
+
 export function MediaGrid(props: MediaGridProps) {
   const visibleCount = props.assets.length;
   const isSearching = props.searchQuery.trim().length > 0;
@@ -66,6 +119,7 @@ export function MediaGrid(props: MediaGridProps) {
       </div>
 
       {props.errorText && <div className="library-warning">{props.errorText}</div>}
+      {props.noticeText && <div className="library-success">{props.noticeText}</div>}
 
       {isSearching && visibleCount === 0 ? (
         <div className="empty-result-card">
@@ -76,9 +130,7 @@ export function MediaGrid(props: MediaGridProps) {
         <div className="asset-grid">
           {props.assets.map((asset) => (
             <article className="asset-card" key={asset.id} title={asset.file_path}>
-              <div className={asset.media_type === 'video' ? 'asset-thumb video' : 'asset-thumb'}>
-                <span>{asset.media_type === 'video' ? '▶' : '▧'}</span>
-              </div>
+              <MediaPreview asset={asset} />
               <div className="asset-info">
                 <h3>{asset.file_name}</h3>
                 <p>{asset.media_type === 'video' ? '视频' : '照片'} · {asset.extension.toUpperCase()} · {formatFileSize(asset.file_size)}</p>
