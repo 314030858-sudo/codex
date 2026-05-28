@@ -10,6 +10,12 @@ export type MediaAsset = {
   created_at: number | null;
   modified_at: number | null;
   imported_at: number;
+  taken_at: string | null;
+  camera_make: string | null;
+  camera_model: string | null;
+  lens_model: string | null;
+  gps_latitude: number | null;
+  gps_longitude: number | null;
 };
 
 export type LibraryOverview = {

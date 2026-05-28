@@ -11,7 +11,7 @@ export function TopBar(props: TopBarProps) {
       <div className="search-box">
         <span>⌕</span>
         <input
-          placeholder="搜索照片、视频、人物、地点或产品"
+          placeholder="搜索文件名、拍摄年份或相机型号"
           aria-label="搜索"
           value={props.searchQuery}
           onChange={(event) => props.onSearchQueryChange(event.target.value)}

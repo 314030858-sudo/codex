@@ -73,7 +73,19 @@ export default function App() {
     }
 
     return overview.assets.filter((asset) => {
-      return [asset.file_name, asset.extension, asset.media_type, asset.file_path]
+      const takenYear = asset.taken_at?.slice(0, 4) ?? '';
+
+      return [
+        asset.file_name,
+        asset.extension,
+        asset.media_type,
+        asset.file_path,
+        asset.taken_at ?? '',
+        takenYear,
+        asset.camera_make ?? '',
+        asset.camera_model ?? '',
+        asset.lens_model ?? ''
+      ]
         .join(' ')
         .toLowerCase()
         .includes(query);

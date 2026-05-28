@@ -40,6 +40,10 @@ function formatDate(value: number | null) {
   });
 }
 
+function cameraLabel(asset: MediaAsset) {
+  return [asset.camera_make, asset.camera_model].filter(Boolean).join(' ');
+}
+
 export function MediaGrid(props: MediaGridProps) {
   const visibleCount = props.assets.length;
   const isSearching = props.searchQuery.trim().length > 0;
@@ -48,7 +52,7 @@ export function MediaGrid(props: MediaGridProps) {
     <section className="media-library">
       <div className="library-header">
         <div>
-          <div className="hero-badge">Phase 3 · Local Media Library</div>
+          <div className="hero-badge">Phase 4 · EXIF Metadata</div>
           <h2>本地媒体库</h2>
           <p>
             已入库 {props.totalMediaCount} 个文件，其中照片 {props.photoCount} 个，视频 {props.videoCount} 个。
@@ -66,7 +70,7 @@ export function MediaGrid(props: MediaGridProps) {
       {isSearching && visibleCount === 0 ? (
         <div className="empty-result-card">
           <h3>没有找到匹配结果</h3>
-          <p>当前阶段先支持文件名、扩展名、路径和媒体类型搜索。自然语言搜图将在后续 AI 阶段实现。</p>
+          <p>当前阶段支持文件名、扩展名、路径、媒体类型、拍摄年份和相机型号搜索。自然语言搜图将在后续 AI 阶段实现。</p>
         </div>
       ) : (
         <div className="asset-grid">
@@ -78,7 +82,8 @@ export function MediaGrid(props: MediaGridProps) {
               <div className="asset-info">
                 <h3>{asset.file_name}</h3>
                 <p>{asset.media_type === 'video' ? '视频' : '照片'} · {asset.extension.toUpperCase()} · {formatFileSize(asset.file_size)}</p>
-                <p>{formatDate(asset.modified_at ?? asset.created_at)}</p>
+                <p>{asset.taken_at ? `拍摄 ${asset.taken_at}` : `文件 ${formatDate(asset.modified_at ?? asset.created_at)}`}</p>
+                {cameraLabel(asset) && <p className="asset-exif">相机 {cameraLabel(asset)}</p>}
               </div>
             </article>
           ))}
