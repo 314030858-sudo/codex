@@ -15,6 +15,16 @@ const emptyOverview: LibraryOverview = {
   assets: []
 };
 
+function friendlyError(error: unknown) {
+  const message = String(error);
+
+  if (message.toLowerCase().includes('permission') || message.includes('not allowed')) {
+    return '权限不足：当前安装包没有成功打开系统文件夹选择权限。请下载最新安装包后重试。';
+  }
+
+  return message;
+}
+
 export default function App() {
   const [overview, setOverview] = useState<LibraryOverview>(emptyOverview);
   const [statusText, setStatusText] = useState('准备就绪');
@@ -31,20 +41,34 @@ export default function App() {
       const nextOverview = await invoke<LibraryOverview>('get_library_overview');
       setOverview(nextOverview);
     } catch (error) {
-      setErrorText(`读取本地媒体库失败：${String(error)}`);
+      setErrorText(`读取本地媒体库失败：${friendlyError(error)}`);
+      setStatusText('读取本地媒体库失败');
     }
   }
 
   async function handleImportFolder() {
-    setErrorText(null);
+    if (isImporting) {
+      return;
+    }
 
-    const selected = await open({
-      directory: true,
-      multiple: false,
-      title: '选择要导入的照片或视频文件夹'
-    });
+    setErrorText(null);
+    setStatusText('请选择要导入的本地照片文件夹');
+
+    let selected: string | string[] | null;
+    try {
+      selected = await open({
+        directory: true,
+        multiple: false,
+        title: '选择要导入的照片或视频文件夹'
+      });
+    } catch (error) {
+      setErrorText(`打开文件夹选择器失败：${friendlyError(error)}`);
+      setStatusText('打开文件夹选择器失败');
+      return;
+    }
 
     if (!selected || Array.isArray(selected)) {
+      setStatusText('已取消导入');
       return;
     }
 
@@ -59,7 +83,7 @@ export default function App() {
       setOverview(nextOverview);
       setStatusText(`导入完成：新增 ${summary.imported_count} 个，跳过 ${summary.skipped_count} 个`);
     } catch (error) {
-      setErrorText(`导入失败：${String(error)}`);
+      setErrorText(`导入失败：${friendlyError(error)}`);
       setStatusText('导入失败');
     } finally {
       setIsImporting(false);
